@@ -19,4 +19,7 @@
     <!-- High Brightness Mode -->
     <add-resource type="bool" name="config_supportHighBrightness"></add-resource>
     <bool name="config_supportHighBrightness">false</bool>
+
+    <!-- Whether device has dash charging support -->
+    <bool name="config_hasDashCharger">false</bool>
 </resources>
