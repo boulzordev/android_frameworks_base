@@ -439,6 +439,8 @@ public class StatusBar extends SystemUI implements DemoMode,
             "system:" + Settings.System.QS_COLUMNS_PORTRAIT;
     private static final String QS_COLUMNS_LANDSCAPE =
             "system:" + Settings.System.QS_COLUMNS_LANDSCAPE;
+    private static final String QS_TILE_TITLE_VISIBILITY =
+            "system:" + Settings.System.QS_TILE_TITLE_VISIBILITY;
     private static final String RECENTS_ICON_PACK =
             "system:" + Settings.System.RECENTS_ICON_PACK;
     private static final String NAVIGATION_BAR_VISIBLE =
@@ -1132,6 +1134,7 @@ public class StatusBar extends SystemUI implements DemoMode,
                 QS_ROWS_LANDSCAPE,
                 QS_COLUMNS_PORTRAIT,
                 QS_COLUMNS_LANDSCAPE,
+                QS_TILE_TITLE_VISIBILITY,
                 RECENTS_ICON_PACK,
                 NAVIGATION_BAR_VISIBLE);
 
@@ -8187,6 +8190,7 @@ public class StatusBar extends SystemUI implements DemoMode,
             case QS_ROWS_LANDSCAPE:
             case QS_COLUMNS_PORTRAIT:
             case QS_COLUMNS_LANDSCAPE:
+            case QS_TILE_TITLE_VISIBILITY:
                 if (mQSPanel != null) {
                     mQSPanel.updateResources();
                 }
