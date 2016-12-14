@@ -427,6 +427,8 @@ public class StatusBar extends SystemUI implements DemoMode,
             "system:" + Settings.System.LOCK_SCREEN_CUSTOM_NOTIF;
     private static final String LOCKSCREEN_MAX_NOTIF_CONFIG =
             "system:" + Settings.System.LOCKSCREEN_MAX_NOTIF_CONFIG;
+    private static final String NAVBAR_DYNAMIC =
+            "system:" + Settings.System.NAVBAR_DYNAMIC;
 
     static {
         boolean onlyCoreApps;
@@ -1113,7 +1115,8 @@ public class StatusBar extends SystemUI implements DemoMode,
                 STATUS_BAR_BRIGHTNESS_CONTROL,
                 LOCKSCREEN_MEDIA_METADATA,
                 LOCK_SCREEN_CUSTOM_NOTIF,
-                LOCKSCREEN_MAX_NOTIF_CONFIG);
+                LOCKSCREEN_MAX_NOTIF_CONFIG,
+                NAVBAR_DYNAMIC);
 
         // Lastly, call to the icon policy to install/update all the icons.
         mIconPolicy = new PhoneStatusBarPolicy(mContext, mIconController);
@@ -8173,6 +8176,11 @@ public class StatusBar extends SystemUI implements DemoMode,
             case LOCKSCREEN_MAX_NOTIF_CONFIG:
                 mMaxKeyguardNotifConfig =
                         newValue == null ? 5 : Integer.parseInt(newValue);
+                break;
+            case NAVBAR_DYNAMIC:
+                if (mNavigationBar != null && mNavigationBarView != null) {
+                    mNavigationBar.updateNavbarOverlay(mContext.getResources());
+                }
                 break;
             default:
                 break;
