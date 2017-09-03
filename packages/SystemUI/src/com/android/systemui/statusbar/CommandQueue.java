@@ -88,6 +88,7 @@ public class CommandQueue extends IStatusBar.Stub {
     private static final int MSG_TOGGLE_FLASHLIGHT             = 40 << MSG_SHIFT;
     private static final int MSG_TOGGLE_NAVIGATION_EDITOR      = 41 << MSG_SHIFT;
     private static final int MSG_DISPATCH_NAVIGATION_EDITOR_RESULTS = 42 << MSG_SHIFT;
+    private static final int MSG_TOGGLE_CAMERA_FLASH           = 43 << MSG_SHIFT;
 
     public static final int FLAG_EXCLUDE_NONE = 0;
     public static final int FLAG_EXCLUDE_SEARCH_PANEL = 1 << 0;
@@ -154,6 +155,8 @@ public class CommandQueue extends IStatusBar.Stub {
         default void toggleFlashlight() {}
         default void toggleNavigationEditor() {}
         default void dispatchNavigationEditorResults(Intent intent) {}
+
+        default void toggleCameraFlash() { }
     }
 
     @VisibleForTesting
@@ -509,6 +512,13 @@ public class CommandQueue extends IStatusBar.Stub {
         }
     }
 
+    public void toggleCameraFlash() {
+        synchronized (mLock) {
+            mHandler.removeMessages(MSG_TOGGLE_CAMERA_FLASH);
+            mHandler.sendEmptyMessage(MSG_TOGGLE_CAMERA_FLASH);
+        }
+    }
+
     private final class H extends Handler {
         private H(Looper l) {
             super(l);
@@ -729,6 +739,11 @@ public class CommandQueue extends IStatusBar.Stub {
                     Intent intent = (Intent) msg.obj;
                     for (int i = 0; i < mCallbacks.size(); i++) {
                         mCallbacks.get(i).dispatchNavigationEditorResults(intent);
+                    }
+                    break;
+                case MSG_TOGGLE_CAMERA_FLASH:
+                    for (int i = 0; i < mCallbacks.size(); i++) {
+                        mCallbacks.get(i).toggleCameraFlash();
                     }
                     break;
             }
