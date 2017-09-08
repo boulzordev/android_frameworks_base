@@ -429,6 +429,14 @@ public class StatusBar extends SystemUI implements DemoMode,
             "system:" + Settings.System.LOCKSCREEN_MAX_NOTIF_CONFIG;
     private static final String NAVBAR_DYNAMIC =
             "system:" + Settings.System.NAVBAR_DYNAMIC;
+    private static final String QS_ROWS_PORTRAIT =
+            "system:" + Settings.System.QS_ROWS_PORTRAIT;
+    private static final String QS_ROWS_LANDSCAPE =
+            "system:" + Settings.System.QS_ROWS_LANDSCAPE;
+    private static final String QS_COLUMNS_PORTRAIT =
+            "system:" + Settings.System.QS_COLUMNS_PORTRAIT;
+    private static final String QS_COLUMNS_LANDSCAPE =
+            "system:" + Settings.System.QS_COLUMNS_LANDSCAPE;
 
     static {
         boolean onlyCoreApps;
@@ -1116,7 +1124,11 @@ public class StatusBar extends SystemUI implements DemoMode,
                 LOCKSCREEN_MEDIA_METADATA,
                 LOCK_SCREEN_CUSTOM_NOTIF,
                 LOCKSCREEN_MAX_NOTIF_CONFIG,
-                NAVBAR_DYNAMIC);
+                NAVBAR_DYNAMIC,
+                QS_ROWS_PORTRAIT,
+                QS_ROWS_LANDSCAPE,
+                QS_COLUMNS_PORTRAIT,
+                QS_COLUMNS_LANDSCAPE);
 
         // Lastly, call to the icon policy to install/update all the icons.
         mIconPolicy = new PhoneStatusBarPolicy(mContext, mIconController);
@@ -8180,6 +8192,14 @@ public class StatusBar extends SystemUI implements DemoMode,
             case NAVBAR_DYNAMIC:
                 if (mNavigationBar != null && mNavigationBarView != null) {
                     mNavigationBar.updateNavbarOverlay(mContext.getResources());
+                }
+                break;
+            case QS_ROWS_PORTRAIT:
+            case QS_ROWS_LANDSCAPE:
+            case QS_COLUMNS_PORTRAIT:
+            case QS_COLUMNS_LANDSCAPE:
+                if (mQSPanel != null) {
+                    mQSPanel.updateResources();
                 }
                 break;
             default:
