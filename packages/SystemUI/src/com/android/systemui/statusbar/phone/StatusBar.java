@@ -210,6 +210,7 @@ import com.android.systemui.recents.ScreenPinningRequest;
 import com.android.systemui.recents.events.EventBus;
 import com.android.systemui.recents.events.activity.AppTransitionFinishedEvent;
 import com.android.systemui.recents.events.activity.UndockingTaskEvent;
+import com.android.systemui.recents.misc.IconPackHelper;
 import com.android.systemui.recents.misc.SystemServicesProxy;
 import com.android.systemui.stackdivider.Divider;
 import com.android.systemui.stackdivider.WindowManagerProxy;
@@ -437,6 +438,8 @@ public class StatusBar extends SystemUI implements DemoMode,
             "system:" + Settings.System.QS_COLUMNS_PORTRAIT;
     private static final String QS_COLUMNS_LANDSCAPE =
             "system:" + Settings.System.QS_COLUMNS_LANDSCAPE;
+    private static final String RECENTS_ICON_PACK =
+            "system:" + Settings.System.RECENTS_ICON_PACK;
 
     static {
         boolean onlyCoreApps;
@@ -1128,7 +1131,8 @@ public class StatusBar extends SystemUI implements DemoMode,
                 QS_ROWS_PORTRAIT,
                 QS_ROWS_LANDSCAPE,
                 QS_COLUMNS_PORTRAIT,
-                QS_COLUMNS_LANDSCAPE);
+                QS_COLUMNS_LANDSCAPE,
+                RECENTS_ICON_PACK);
 
         // Lastly, call to the icon policy to install/update all the icons.
         mIconPolicy = new PhoneStatusBarPolicy(mContext, mIconController);
@@ -8201,6 +8205,13 @@ public class StatusBar extends SystemUI implements DemoMode,
                 if (mQSPanel != null) {
                     mQSPanel.updateResources();
                 }
+                break;
+            case RECENTS_ICON_PACK:
+                if (newValue != null) {
+                    String currentIconPack = (String) newValue;
+                    IconPackHelper.getInstance(mContext).updatePrefs(currentIconPack);
+                }
+                mRecents.resetIconCache();
                 break;
             default:
                 break;
