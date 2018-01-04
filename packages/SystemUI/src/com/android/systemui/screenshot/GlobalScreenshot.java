@@ -547,7 +547,7 @@ class GlobalScreenshot implements ColorExtractor.OnColorsChangedListener {
         // Load hardware rotation from prop
         mSfHwRotation = android.os.SystemProperties.getInt("ro.sf.hwrotation", 0) / 90;
 
-        Dependency.initDependencies(context);
+        Dependency.initDependencies(context.getApplicationContext());
         mKeyguardMonitor = Dependency.get(KeyguardMonitor.class);
         mColorExtractor = Dependency.get(SysuiColorExtractor.class);
         mColorExtractor.addOnColorsChangedListener(this);
