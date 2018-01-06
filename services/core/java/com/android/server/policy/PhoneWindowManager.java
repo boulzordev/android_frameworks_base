@@ -2458,15 +2458,11 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                 mImmersiveModeConfirmation.loadSetting(mCurrentUserId);
             }
 
-            boolean doShowNavbar = Settings.Secure.getIntForUser(resolver,
+            mNavbarVisible = Settings.Secure.getIntForUser(resolver,
                     Settings.Secure.NAVIGATION_BAR_VISIBLE,
                     DUActionUtils.hasNavbarByDefault(mContext) ? 1 : 0,
                     UserHandle.USER_CURRENT) == 1;
-            if (doShowNavbar != mNavbarVisible) {
-                mNavbarVisible = doShowNavbar;
-            }
             updateNavigationBarSize();
-
         }
 
         synchronized (mWindowManagerFuncs.getWindowManagerLock()) {

@@ -417,6 +417,7 @@ public class StatusBar extends SystemUI implements DemoMode,
 
     private boolean mCustomMaxKeyguard;
     private int mMaxKeyguardNotifConfig;
+    private boolean mNavbarVisible;
 
     private static final String SCREEN_BRIGHTNESS_MODE =
             "system:" + Settings.System.SCREEN_BRIGHTNESS_MODE;
@@ -440,6 +441,8 @@ public class StatusBar extends SystemUI implements DemoMode,
             "system:" + Settings.System.QS_COLUMNS_LANDSCAPE;
     private static final String RECENTS_ICON_PACK =
             "system:" + Settings.System.RECENTS_ICON_PACK;
+    private static final String NAVIGATION_BAR_VISIBLE =
+            Settings.Secure.NAVIGATION_BAR_VISIBLE;
 
     static {
         boolean onlyCoreApps;
@@ -1010,9 +1013,6 @@ public class StatusBar extends SystemUI implements DemoMode,
                 mLockscreenSettingsObserver,
                 UserHandle.USER_ALL);
 
-        mContext.getContentResolver().registerContentObserver(Settings.Secure.getUriFor(
-                Settings.Secure.NAVIGATION_BAR_VISIBLE), false, mNavbarObserver, UserHandle.USER_ALL);
-
         mBarService = IStatusBarService.Stub.asInterface(
                 ServiceManager.getService(Context.STATUS_BAR_SERVICE));
 
@@ -1132,7 +1132,8 @@ public class StatusBar extends SystemUI implements DemoMode,
                 QS_ROWS_LANDSCAPE,
                 QS_COLUMNS_PORTRAIT,
                 QS_COLUMNS_LANDSCAPE,
-                RECENTS_ICON_PACK);
+                RECENTS_ICON_PACK,
+                NAVIGATION_BAR_VISIBLE);
 
         // Lastly, call to the icon policy to install/update all the icons.
         mIconPolicy = new PhoneStatusBarPolicy(mContext, mIconController);
@@ -1243,9 +1244,9 @@ public class StatusBar extends SystemUI implements DemoMode,
             mNotificationPanelDebugText.setVisibility(View.VISIBLE);
         }
 
-        boolean showNav = Settings.Secure.getInt(mContext.getContentResolver(),
+        boolean showNav = Settings.Secure.getIntForUser(mContext.getContentResolver(),
                 Settings.Secure.NAVIGATION_BAR_VISIBLE,
-                DUActionUtils.hasNavbarByDefault(mContext) ? 1 : 0) != 0;
+                DUActionUtils.hasNavbarByDefault(mContext) ? 1 : 0, UserHandle.USER_CURRENT) != 0;
         if (DEBUG)
             Log.v(TAG, "hasNavigationBar=" + showNav);
         if (showNav) {
@@ -1455,14 +1456,16 @@ public class StatusBar extends SystemUI implements DemoMode,
     }
 
     protected void removeNavigationBar() {
-        if (mNavigationBar != null && mNavigationBarView != null) {
+        if (mNavigationBarView != null) {
             FragmentHostManager fragmentHost = FragmentHostManager.get(mNavigationBarView);
             if (mNavigationBarView.isAttachedToWindow()) {
                 mWindowManager.removeViewImmediate(mNavigationBarView);
-                mNavigationBarView = null;
             }
-            fragmentHost.getFragmentManager().beginTransaction().remove(mNavigationBar).commit();
-            mNavigationBar = null;
+            if (mNavigationBar != null) {
+                fragmentHost.getFragmentManager().beginTransaction().remove(mNavigationBar).commit();
+                mNavigationBar = null;
+            }
+            mNavigationBarView = null;
         }
     }
 
@@ -6407,25 +6410,6 @@ public class StatusBar extends SystemUI implements DemoMode,
         }
     };
 
-    protected final ContentObserver mNavbarObserver = new ContentObserver(mHandler) {
-        @Override
-        public void onChange(boolean selfChange) {
-            boolean showing = Settings.Secure.getInt(mContext.getContentResolver(),
-                    Settings.Secure.NAVIGATION_BAR_VISIBLE,
-                    DUActionUtils.hasNavbarByDefault(mContext) ? 1 : 0) != 0;
-            if (!showing && mNavigationBar != null && mNavigationBarView != null) {
-                removeNavigationBar();
-            } else if (showing && mNavigationBar == null && mNavigationBarView == null) {
-                createNavigationBar();
-            }
-            if (!DUActionUtils.hasNavbarByDefault(mContext)) {
-                Intent intent = new Intent("com.cyanogenmod.action.UserChanged");
-                intent.setPackage("com.android.settings");
-                mContext.sendBroadcastAsUser(intent, new UserHandle(UserHandle.USER_CURRENT));
-            }
-        }
-    };
-
     private RemoteViews.OnClickHandler mOnClickHandler = new RemoteViews.OnClickHandler() {
 
         @Override
@@ -8213,11 +8197,30 @@ public class StatusBar extends SystemUI implements DemoMode,
                 }
                 mRecents.resetIconCache();
                 break;
+            case NAVIGATION_BAR_VISIBLE:
+                mNavbarVisible =
+                        newValue == null ? DUActionUtils.hasNavbarByDefault(mContext) :
+                                    Integer.parseInt(newValue) != 0;
+                updateNavbarvisibility();
+                break;
             default:
                 break;
         }
     }
     // End Extra BaseStatusBarMethods.
+
+    private void updateNavbarvisibility() {
+        if (!mNavbarVisible) {
+            removeNavigationBar();
+        } else if (mNavigationBar == null && mNavigationBarView == null) {
+            createNavigationBar();
+        }
+        if (!DUActionUtils.hasNavbarByDefault(mContext)) {
+            Intent intent = new Intent("com.cyanogenmod.action.UserChanged");
+            intent.setPackage("com.android.settings");
+            mContext.sendBroadcastAsUser(intent, new UserHandle(UserHandle.USER_CURRENT));
+        }
+    }
 
     private final Runnable mAutoDim = () -> {
         if (mNavigationBar != null) {
