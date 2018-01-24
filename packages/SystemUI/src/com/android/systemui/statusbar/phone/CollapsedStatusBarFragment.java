@@ -23,6 +23,7 @@ import android.annotation.Nullable;
 import android.app.Fragment;
 import android.app.StatusBarManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.Settings;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -71,6 +72,10 @@ public class CollapsedStatusBarFragment extends Fragment implements CommandQueue
     private View mTickerViewFromStub;
 
     private View mBatteryBar;
+
+    private ClockController mClockController;
+    private View mCenterClockLayout;
+    private Handler mHandler;
 
     private static final String STATUS_BAR_SHOW_TICKER =
             "system:" + Settings.System.STATUS_BAR_SHOW_TICKER;
@@ -128,6 +133,12 @@ public class CollapsedStatusBarFragment extends Fragment implements CommandQueue
         mBatteryBar = mStatusBar.findViewById(R.id.battery_bar);
         mSignalClusterView = mStatusBar.findViewById(R.id.signal_cluster);
         Dependency.get(DarkIconDispatcher.class).addDarkReceiver(mSignalClusterView);
+
+        mHandler = new Handler();
+        mClockController = new ClockController(mStatusBar, mHandler);
+        mCenterClockLayout = mStatusBar.findViewById(R.id.center_clock_layout);
+        mClockController.updateSettings();
+
         // Default to showing until we know otherwise.
         showSystemIconArea(false);
         initEmergencyCryptkeeperText();
@@ -140,12 +151,14 @@ public class CollapsedStatusBarFragment extends Fragment implements CommandQueue
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putInt(EXTRA_PANEL_STATE, mStatusBar.getState());
+        mClockController.updateSettings();
     }
 
     @Override
     public void onResume() {
         super.onResume();
         SysUiServiceProvider.getComponent(getContext(), CommandQueue.class).addCallbacks(this);
+        mClockController.updateSettings();
     }
 
     @Override
@@ -177,6 +190,8 @@ public class CollapsedStatusBarFragment extends Fragment implements CommandQueue
         notificationIconArea.addView(mNotificationIconAreaInner);
         // Default to showing until we know otherwise.
         showNotificationIconArea(false);
+
+        mClockController.updateSettings();
     }
 
     @Override
@@ -238,6 +253,7 @@ public class CollapsedStatusBarFragment extends Fragment implements CommandQueue
         animateHide(mWeatherRight, animate);
         animateHide(mWeatherImageRight, animate);
         animateHide(mSystemIconArea, animate);
+        animateHide(mCenterClockLayout, animate);
     }
 
     public void showSystemIconArea(boolean animate) {
@@ -249,14 +265,17 @@ public class CollapsedStatusBarFragment extends Fragment implements CommandQueue
         animateShow(mCrDroidLogoRight, animate);
         animateShow(mCrDroidLogo, animate);
         animateShow(mBatteryBar, animate);
+        animateShow(mCenterClockLayout, animate);
     }
 
     public void hideNotificationIconArea(boolean animate) {
         animateHide(mNotificationIconAreaInner, animate);
+        animateHide(mCenterClockLayout, animate);
     }
 
     public void showNotificationIconArea(boolean animate) {
         animateShow(mNotificationIconAreaInner, animate);
+        animateShow(mCenterClockLayout, animate);
     }
 
     /**

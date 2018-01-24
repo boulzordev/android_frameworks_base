@@ -952,6 +952,7 @@ public class StatusBar extends SystemUI implements DemoMode,
 
     private NavigationBarFragment mNavigationBar;
     private View mNavigationBarView;
+    private CollapsedStatusBarFragment mCollapsedFragment;
 
     @Override
     public void start() {
@@ -1234,6 +1235,7 @@ public class StatusBar extends SystemUI implements DemoMode,
                 .addTagListener(CollapsedStatusBarFragment.TAG, (tag, fragment) -> {
                     CollapsedStatusBarFragment statusBarFragment =
                             (CollapsedStatusBarFragment) fragment;
+                    mCollapsedFragment = statusBarFragment;
                     statusBarFragment.initNotificationIconArea(mNotificationIconAreaController);
                     mStatusBarView = (PhoneStatusBarView) fragment.getView();
                     mStatusBarView.setBar(this);
@@ -3997,6 +3999,9 @@ public class StatusBar extends SystemUI implements DemoMode,
             if (mTickerView != null) {
                 mTickerView.setVisibility(View.VISIBLE);
                 mTickerView.startAnimation(loadAnim(false, null));
+                if (mCollapsedFragment != null) {
+                    mCollapsedFragment.hideSystemIconArea(true);
+                }
             }
         }
 
@@ -4008,6 +4013,9 @@ public class StatusBar extends SystemUI implements DemoMode,
             if (mTickerView != null) {
                 mTickerView.setVisibility(View.GONE);
                 mTickerView.startAnimation(loadAnim(true, mTickingDoneListener));
+                if (mCollapsedFragment != null) {
+                    mCollapsedFragment.showSystemIconArea(true);
+                }
             }
         }
 
@@ -4022,6 +4030,9 @@ public class StatusBar extends SystemUI implements DemoMode,
             if (mTickerView != null) {
                 mTickerView.setVisibility(View.GONE);
                 // we do not animate the ticker away at this point, just get rid of it (b/6992707)
+                if (mCollapsedFragment != null) {
+                    mCollapsedFragment.showSystemIconArea(true);
+                }
             }
         }
 
